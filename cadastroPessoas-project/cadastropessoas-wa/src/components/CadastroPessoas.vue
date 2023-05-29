@@ -16,7 +16,7 @@
         <tr v-for="person in list" :key="person.id">
           <td>{{ person.name }}</td>
           <td>{{ formatDateToYearsOld(person.age) }} anos</td>
-          <td>{{ person.cpf }}</td>
+          <td>{{ formatCPF(person.cpf) }}</td>
           <td>{{ person.gender }}</td>
           <td class="action">
             <button class="action-button" @click="openEdit(person)">
@@ -63,26 +63,28 @@
         </div>
         <div class="sex-input-field">
           <label class="sex-title">Sexo:</label>
-          <div class="each-field">
-            <input
-              type="checkbox"
-              class="checkbox-round"
-              value="Masculino"
-              @change="changeSex($event)"
-            />
-            <span class="sex-label">Masculino</span>
-          </div>
-          <div class="each-field">
-            <input
-              type="checkbox"
-              class="checkbox-round"
-              value="Feminino"
-              @change="changeSex($event)"
-            />
-            <span class="sex-label">Feminino</span>
-          </div>
-          <div v-if="errorMessages.gender" class="error-message">
-            {{ errorMessages.gender }}
+          <div class="gender-container">
+            <div class="each-field">
+              <input
+                type="checkbox"
+                class="checkbox-round"
+                value="Masculino"
+                @change="changeSex($event)"
+              />
+              <span class="sex-label">Masculino</span>
+            </div>
+            <div class="each-field">
+              <input
+                type="checkbox"
+                class="checkbox-round"
+                value="Feminino"
+                @change="changeSex($event)"
+              />
+              <span class="sex-label">Feminino</span>
+            </div>
+            <div v-if="errorMessages.gender" class="error-message">
+              {{ errorMessages.gender }}
+            </div>
           </div>
         </div>
         <div class="button-field">
@@ -125,32 +127,37 @@
         </div>
         <div class="sex-input-field">
           <label class="sex-title">Sexo:</label>
-          <div class="each-field">
-            <input
-              type="checkbox"
-              class="checkbox-round"
-              value="Masculino"
-              :checked="this.masculinoTrue"
-              @change="changeSex($event)"
-            />
-            <span class="sex-label">Masculino</span>
-          </div>
-          <div class="each-field">
-            <input
-              type="checkbox"
-              class="checkbox-round"
-              value="Feminino"
-             :checked="this.femininoTrue"
-              @change="changeSex($event)"
-            />
-            <span class="sex-label">Feminino</span>
-          </div>
-          <div v-if="errorMessages.gender" class="error-message">
-            {{ errorMessages.gender }}
+
+          <div class="gender-container">
+            <div class="each-field">
+              <input
+                type="checkbox"
+                class="checkbox-round"
+                value="Masculino"
+                :checked="this.masculinoTrue"
+                @change="changeSex($event)"
+              />
+              <span class="sex-label">Masculino</span>
+            </div>
+            <div class="each-field">
+              <input
+                type="checkbox"
+                class="checkbox-round"
+                value="Feminino"
+                :checked="this.femininoTrue"
+                @change="changeSex($event)"
+              />
+              <span class="sex-label">Feminino</span>
+            </div>
+            <div v-if="errorMessages.gender" class="error-message">
+              {{ errorMessages.gender }}
+            </div>
           </div>
         </div>
         <div class="button-field">
-          <button class="button" @click="updatePerson(editingPerson)">Gravar</button>
+          <button class="button" @click="updatePerson(editingPerson)">
+            Gravar
+          </button>
           <button class="button" @click="closeModal">Cancelar</button>
         </div>
       </div>
@@ -189,9 +196,7 @@ export default {
     this.loadPeople();
   },
   methods: {
-    
     //Validações e formatadores
-
     validateCPF(cpf) {
       if (!cpf || cpf.length !== 11 || !/^\d+$/.test(cpf)) {
         return false;
@@ -231,7 +236,20 @@ export default {
       const age = currentYear - birthYear;
       return age;
     },
+    formatCPF(cpf) {
+      const numericString = cpf.replace(/\D/g, "");
+      if (numericString.length !== 11) {
+        return "CPF Inválido!";
+      }
 
+      // Formatar
+      const formattedCPF = numericString.replace(
+        /^(\d{3})(\d{3})(\d{3})(\d{2})$/,
+        "$1.$2.$3-$4"
+      );
+
+      return formattedCPF;
+    },
     //Controlador dos inputs checkbox de sexo.
     changeSex(event) {
       console.log(event.target.defaultValue);
@@ -251,27 +269,34 @@ export default {
           ) {
             this.editingPerson.gender = "";
             console.log("Era feminino, ficou vazio.");
-          } if 
-          (this.editingPerson.gender = "Masculino" && event.target.defaultValue === "Feminino")
-          {
-            console.log("Era Masculino, ficou feminino ", event.target.defaultValue);
+          }
+          if (
+            (this.editingPerson.gender =
+              "Masculino" && event.target.defaultValue === "Feminino")
+          ) {
+            console.log(
+              "Era Masculino, ficou feminino ",
+              event.target.defaultValue
+            );
             this.editingPerson.gender = "Feminino";
           }
-          if 
-          (this.editingPerson.gender = "Feminino" && event.target.defaultValue === "Masculino")
-          {
-            console.log("Era Feminino, ficou Masculino ", event.target.defaultValue);
+          if (
+            (this.editingPerson.gender =
+              "Feminino" && event.target.defaultValue === "Masculino")
+          ) {
+            console.log(
+              "Era Feminino, ficou Masculino ",
+              event.target.defaultValue
+            );
             this.editingPerson.gender = "Masculino";
           } else {
             this.editingPerson.gender = event.target.defaultValue;
-
           }
         }
       } catch (error) {
         console.log(error);
       }
     },
-
 
     //Carregando dados do banco
     async loadPeople() {
@@ -312,8 +337,8 @@ export default {
     },
     //Modal de PUT
     openEdit(person = null) {
-      this.femininoTrue = false
-      this.masculinoTrue = false
+      this.femininoTrue = false;
+      this.masculinoTrue = false;
       this.errorMessages = {
         name: "",
         cpf: "",
@@ -324,15 +349,14 @@ export default {
       this.showEditModal = true;
       var varAux = this.convertDateFormat(person.age);
       person.age = varAux;
-      if(person.gender == "Masculino"){
+      if (person.gender == "Masculino") {
         this.masculinoTrue = true;
         this.femininoTrue = false;
       }
-      if(person.gender == "Feminino"){
+      if (person.gender == "Feminino") {
         this.femininoTrue = true;
         this.masculinoTrue = false;
-
-      } 
+      }
       if (person) {
         this.editingPerson = Object.assign({}, person);
         this.editingPerson.isNewPerson = false;
@@ -367,6 +391,7 @@ export default {
         address: "Endereço inválido!",
         gender: "Sexo inválido!",
       };
+      this.loadPeople()
     },
 
     //Post
@@ -465,7 +490,7 @@ export default {
         // Put
         var dateAux = new Date(editingPerson.age);
         var date = dateAux.toISOString();
-        var id =  editingPerson.id;
+        var id = editingPerson.id;
         const pessoa = {
           cpf: editingPerson.cpf,
           name: editingPerson.name,
@@ -486,18 +511,16 @@ export default {
       }
     },
     // Delete
-    deletePerson(person) {
-      var id = person.id
-      services.pessoas.deletePessoa(id)
-      const listaAtualizada = this.loadPeople();
-            this.list = listaAtualizada.data;
+    async deletePerson(person) {
+      var id = person.id;
+      await services.pessoas.deletePessoa(id);
+      this.loadPeople()
     },
   },
 };
 </script>
 
 <style scoped>
-
 body {
   font-family: Arial, sans-serif;
   text-align: left;
@@ -533,13 +556,20 @@ table {
   width: 100%;
   padding: 5px;
   border: none;
+  font-weight: normal;
 }
 
 tbody td {
   border: none;
   padding: 2px;
 }
-
+button {
+  width: 4rem;
+  padding: 5px;
+}
+th {
+  font-weight: normal;
+}
 tbody tr:hover {
   background-color: rgb(185, 185, 185, 0.7);
 }
@@ -556,9 +586,10 @@ tbody tr:nth-child(odd) {
 thead tr {
   background-color: rgb(185, 185, 185, 0.7);
   padding: 5px;
-  /* background-color: #f3f2f2; */
 }
-
+tr {
+  padding: 15px;
+}
 td {
   border: none;
   padding: 5px;
@@ -574,6 +605,13 @@ td:last-child {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+}
+.gender-container {
+  gap: 2rem;
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  margin-left: -16rem;
 }
 
 .list-item {
@@ -631,25 +669,21 @@ td:last-child {
 }
 
 .sex-title {
-  position: absolute;
-  margin-left: -197px;
-  /* float: left; */
-  /* left: 35.6rem; */
+  position: relative;
+  margin-left: -20rem;
   margin-top: 5px;
 }
 
 .date-label {
   position: absolute;
   margin-left: -267px;
-  /* float: left; */
-  /* left: 35.6rem; */
+
   margin-top: 5px;
 }
 
 label {
   position: absolute;
   margin-left: -122px;
-  /* left: 35.6rem; */
   margin-top: 5px;
 }
 
@@ -714,15 +748,13 @@ input[type="checkbox"] {
   margin-top: 2rem;
   color: red;
   font-size: 12px;
-  /* margin-top: 5px; */
 }
-.error-message-age{
+.error-message-age {
   position: absolute;
   margin-left: -8.8rem;
   margin-top: 2.2rem;
   color: red;
   font-size: 12px;
-  /* margin-top: 5px; */
 }
 .checkbox-round {
   width: 1.3em;
